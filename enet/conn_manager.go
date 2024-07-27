@@ -2,6 +2,7 @@ package enet
 
 import (
 	"EagleNet/eiface"
+	"EagleNet/pkg/log"
 	"fmt"
 	"sync"
 )
@@ -57,5 +58,5 @@ func (m *ConnManager) Clear() {
 		delete(m.connMap, conn.GetConnID())
 	}
 
-	fmt.Printf("ConnManager clear all connections.\n")
+	log.Infof("ConnManager clear all connections.")
 }

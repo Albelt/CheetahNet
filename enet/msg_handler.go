@@ -3,6 +3,7 @@ package enet
 import (
 	"EagleNet/configs"
 	"EagleNet/eiface"
+	"EagleNet/pkg/log"
 	"fmt"
 )
 
@@ -42,7 +43,7 @@ func (h *MsgHandler) DoMsgHandler(req eiface.IRequest) {
 	//查询msgID对应的路由
 	router, ok := h.routerMap[req.GetMsgID()]
 	if !ok {
-		fmt.Printf("MsgID(%d)'s router not found\n", req.GetMsgID())
+		log.Warnf("MsgID(%d)'s router not found", req.GetMsgID())
 		return
 	}
 
@@ -54,15 +55,14 @@ func (h *MsgHandler) DoMsgHandler(req eiface.IRequest) {
 
 func (h *MsgHandler) PrintAllRouters() {
 	if len(h.routerMap) == 0 {
-		fmt.Println("No routers")
+		log.Infof("No routers")
 		return
 	}
 
-	fmt.Println("All Routers:")
+	log.Infof("All Routers:")
 	for msgID, router := range h.routerMap {
-		fmt.Printf("MsgID(%d) -> Router(%T)\n", msgID, router)
+		log.Infof("MsgID(%d) -> Router(%T)", msgID, router)
 	}
-	fmt.Println()
 }
 
 func (h *MsgHandler) StartWorkerPool() {
@@ -77,9 +77,9 @@ func (h *MsgHandler) StartWorkerPool() {
 
 //启动单个Worker
 func (h *MsgHandler) startWorker(workerID int, taskQ chan eiface.IRequest) {
-	fmt.Printf("Worker(ID=%d) starting...\n", workerID)
+	log.Infof("Worker(ID=%d) starting...", workerID)
 	defer func() {
-		fmt.Printf("Worker(ID=%d) exit\n", workerID)
+		log.Infof("Worker(ID=%d) exit", workerID)
 	}()
 
 	for {

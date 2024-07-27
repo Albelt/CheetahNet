@@ -4,7 +4,7 @@ import (
 	"EagleNet/configs"
 	"EagleNet/eiface"
 	"EagleNet/enet"
-	"fmt"
+	"EagleNet/pkg/log"
 )
 
 func main() {
@@ -42,11 +42,11 @@ func newMyRouter() *myRouter {
 }
 
 func (r *myRouter) Handler(req eiface.IRequest) {
-	fmt.Printf("myRouter.Handler received msg, ID:%d, data:%s\n", req.GetMsgID(), req.GetData())
+	log.Infof("myRouter.Handler received msg, ID:%d, data:%s", req.GetMsgID(), req.GetData())
 
 	sayHello := "Hello, this is EagleNet!"
 	err := req.GetConnection().SendMsg([]byte(sayHello), msgID_01)
 	if err != nil {
-		fmt.Printf("Handler err:%s\n", err.Error())
+		log.Infof("Handler err:%s", err.Error())
 	}
 }

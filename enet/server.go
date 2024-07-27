@@ -5,6 +5,7 @@ import (
 	"EagleNet/eiface"
 	"fmt"
 	"net"
+	"EagleNet/pkg/log"
 )
 
 // IServer的实现
@@ -46,26 +47,26 @@ func (s *Server) start() {
 	// 解析地址
 	addr, err := net.ResolveTCPAddr(s.IPVersion, fmt.Sprintf("%s:%d", s.IP, s.Port))
 	if err != nil {
-		fmt.Printf("ResolveTCPAddr err:%s\n", err.Error())
+		log.Errorf("ResolveTCPAddr err:%s", err.Error())
 		return
 	}
 
 	// 创建socket并监听
 	lis, err := net.ListenTCP(s.IPVersion, addr)
 	if err != nil {
-		fmt.Printf("ListenTCP err:%s\n", err.Error())
+		log.Errorf("ListenTCP err:%s", err.Error())
 		return
 	}
 	defer lis.Close()
 
-	fmt.Printf("[Start] Server(%s) on %s://%s:%d\n", s.Name, s.IPVersion, s.IP, s.Port)
+	log.Infof("[Start] Server(%s) on %s: %s:%d", s.Name, s.IPVersion, s.IP, s.Port)
 
 	// 接收客户端连接,处理读写
 	var connID uint32
 	for {
 		conn, err := lis.AcceptTCP()
 		if err != nil {
-			fmt.Printf("AcceptTCP err:%s\n", err.Error())
+			log.Errorf("AcceptTCP err:%s", err.Error())
 			break
 		}
 		connID++
@@ -74,7 +75,7 @@ func (s *Server) start() {
 		if s.connMgr.Len() >= s.serverCfg.MaxConn {
 			//TODO:给客户端响应一个错误
 			conn.Close()
-			fmt.Printf("Connection exceed max number %d\n", s.serverCfg.MaxConn)
+			log.Warnf("Connection exceed max number %d", s.serverCfg.MaxConn)
 			continue
 		}
 

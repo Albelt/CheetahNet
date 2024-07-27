@@ -3,6 +3,7 @@ package enet
 import (
 	"EagleNet/configs"
 	"EagleNet/eiface"
+	"EagleNet/pkg/log"
 	"errors"
 	"fmt"
 	"io"
@@ -51,7 +52,7 @@ func NewConnection(srv eiface.IServer, conn *net.TCPConn, connID uint32, dataPac
 }
 
 func (c *Connection) Start() {
-	fmt.Printf("Connection Start, connID:%d, remoteAddr:%s\n", c.ConnID, c.GetRemoteAddr().String())
+	log.Infof("Connection Start, connID:%d, remoteAddr:%s", c.ConnID, c.GetRemoteAddr().String())
 
 	//启动读协程
 	go c.startReader()
@@ -65,9 +66,9 @@ func (c *Connection) Start() {
 
 //读数据的协程
 func (c *Connection) startReader() {
-	fmt.Printf("ConnID:%d, Reader goroutine is running...\n", c.GetConnID())
+	log.Infof("ConnID:%d, Reader goroutine is running...", c.GetConnID())
 	defer func() {
-		fmt.Printf("ConnID:%d, Reader is exit\n", c.GetConnID())
+		log.Infof("ConnID:%d, Reader is exit", c.GetConnID())
 		c.Stop()
 	}()
 
@@ -104,14 +105,14 @@ func (c *Connection) startReader() {
 		c.srv.GetMsgHandler().ProcessRequestAsync(req)
 	}
 
-	fmt.Printf("Reader got err:%s\n", err.Error())
+	log.Infof("Reader got err:%s", err.Error())
 }
 
 //写数据的协程
 func (c *Connection) startWriter() {
-	fmt.Printf("ConnID:%d, Writer goroutine is running...\n", c.GetConnID())
+	log.Infof("ConnID:%d, Writer goroutine is running...", c.GetConnID())
 	defer func() {
-		fmt.Printf("ConnID:%d, Writer is exit\n", c.GetConnID())
+		log.Infof("ConnID:%d, Writer is exit", c.GetConnID())
 	}()
 
 	//阻塞等待channel的消息,往客户端发送数据
@@ -121,7 +122,7 @@ Loop:
 		select {
 		case data := <-c.msgChann:
 			if _, err = c.Conn.Write(data); err != nil {
-				fmt.Printf("Writer got err:%s\n", err.Error())
+				log.Infof("Writer got err:%s", err.Error())
 			}
 		case <-c.ExitChan:
 			break Loop
@@ -130,7 +131,7 @@ Loop:
 }
 
 func (c *Connection) Stop() {
-	fmt.Printf("Connection Stop, connID:%d, remoteAddr:%s\n", c.ConnID, c.GetRemoteAddr().String())
+	log.Infof("Connection Stop, connID:%d, remoteAddr:%s", c.ConnID, c.GetRemoteAddr().String())
 
 	// 判断关闭标志
 	if c.Closed {

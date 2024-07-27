@@ -2,6 +2,7 @@ package main
 
 import (
 	"EagleNet/configs"
+	"EagleNet/pkg/log"
 	"errors"
 	"fmt"
 	"io"
@@ -37,7 +38,7 @@ func main() {
 			header := make([]byte, dp.GetHeaderLen())
 			_, err = io.ReadFull(conn, header)
 			if err != nil {
-				fmt.Printf("Read err:%s\n", err.Error())
+				log.Infof("Read err:%s", err.Error())
 				if errors.Is(err, io.EOF) {
 					break
 				} else {
@@ -46,7 +47,7 @@ func main() {
 			}
 			unPackdMsg, err := dp.UnPack(header)
 			if err != nil {
-				fmt.Printf("Unpack err:%s\n", err.Error())
+				log.Infof("Unpack err:%s", err.Error())
 				continue
 			}
 			if unPackdMsg.GetLen() > 0 {
@@ -54,7 +55,7 @@ func main() {
 				_, _ = io.ReadFull(conn, body)
 				unPackdMsg.SetData(body)
 			}
-			fmt.Printf("read msg, ID:%d, data:%s\n", unPackdMsg.GetID(), unPackdMsg.GetData())
+			log.Infof("read msg, ID:%d, data:%s", unPackdMsg.GetID(), unPackdMsg.GetData())
 		}
 	}()
 
@@ -62,9 +63,9 @@ func main() {
 	go func() {
 		var input string
 		for {
-			_, err := fmt.Scanf("%s\n", &input)
+			_, err := fmt.Scanf("%s", &input)
 			if err != nil {
-				fmt.Printf("Read err:%s\n", err)
+				log.Infof("Read err:%s", err)
 				continue
 			}
 
@@ -78,10 +79,10 @@ func main() {
 			// 写数据
 			_, err = conn.Write(bytes)
 			if err != nil {
-				fmt.Printf("Write err:%s\n", err.Error())
+				log.Infof("Write err:%s", err.Error())
 				break
 			}
-			fmt.Printf("write msg, ID:%d, data:%s\n", msg.GetID(), msg.GetData())
+			log.Infof("write msg, ID:%d, data:%s", msg.GetID(), msg.GetData())
 		}
 	}()
 

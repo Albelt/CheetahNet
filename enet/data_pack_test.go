@@ -1,6 +1,7 @@
 package enet
 
 import (
+	"EagleNet/configs"
 	"io"
 	"net"
 	"reflect"
@@ -8,9 +9,13 @@ import (
 	"time"
 )
 
+var (
+	dpConfig = &configs.DataPack{MaxPkgSize: 2048}
+)
+
 //测试封包解包
 func TestDataPack(t *testing.T) {
-	dp := NewDataPack()
+	dp := NewDataPack(dpConfig)
 
 	msg := &Message{
 		ID:   1,
@@ -30,7 +35,7 @@ func TestDataPack(t *testing.T) {
 
 	if unPackedMsg.GetID() != msg.GetID() || unPackedMsg.GetLen() != msg.GetLen() ||
 		!reflect.DeepEqual(msg.GetData(), unPackedMsg.GetData()) {
-		t.Fatalf("Expected:%+v\nGot:%+v\n", msg, unPackedMsg)
+		t.Fatalf("Expected:%+vGot:%+v", msg, unPackedMsg)
 	}
 }
 
@@ -55,7 +60,7 @@ func TestTCPPacketStickingAndSpliting(t *testing.T) {
 			go func() {
 				for {
 					//读取并解包header
-					dp := NewDataPack()
+					dp := NewDataPack(dpConfig)
 					header := make([]byte, dp.GetHeaderLen())
 					_, err := io.ReadFull(conn, header)
 					if err != nil {
@@ -87,7 +92,7 @@ func TestTCPPacketStickingAndSpliting(t *testing.T) {
 			return
 		}
 
-		dp := NewDataPack()
+		dp := NewDataPack(dpConfig)
 
 		//封装2个数据包,组成粘包
 		msg1 := &Message{
